@@ -1,5 +1,5 @@
 ------
-# <font color="orange"> CreditWorthiness Predictive Modelling </font>
+# <font color="orange"> Creditworthiness Predictive Modelling </font>
 
 Machine Learning Classifiers for CreditWorthiness Indicator.     
 ***Author***: Anh Dung Le  
@@ -67,6 +67,100 @@ The dataset used in this project is from [Kaggle](https://www.kaggle.com/dataset
 | ***29*** | ***loan_status*** | ***loan repayment status (0 = non-default, 1 = default) $\to$ Creditworthiness Flag*** | ***Target***
 
 </center>
+
+## <font color="orange"> 2. Data analysis </font>
+
+### **Basic observation**
+- 29 Attributes:  float (9), int (8), str (12)
+- There are abnormal data in the columns ``person_age`` and ``person_emp_length`` (> 100 years). A check reveals that these abnormal rows are small in size (few rows). So it is safe to remove theme.  
+- No duplicates found
+- Information on city's longitude and latitude can be (and should be) ignored. They just encode the city itself. (By the way, the city is usually not a useful information, as in this case.)  
+- Name normalization:
+    + `person_age` --> `person_age_years`
+    + `person_income` --> `person_income_usd`
+    + `person_emp_length` --> `person_emp_length_years`
+    + `loan_amnt` --> `loan_amount_usd`
+    + `other_debt` --> `other_debt_usd`
+    + `cb_person_cred_hist_length` --> `cb_person_cred_hist_length_years`
+
+### **Missing value analysis**
+Two columns `loan_int_rate` and `person_emp_length_years` have missing values in their contents. The statistics of missing values is shown below:
+
+<center>
+
+| feature |  null_count  | null_pct (%) |
+|--|--|--|  
+|loan_int_rate | 3116| 9.563856|  
+|  person_emp_length_years|         895|  2.747000|
+
+
+<img src="./images/null_distrib.png"
+     alt="nulls distribution" width="560"/>
+
+</center>
+
+So, missing values take a small fraction of total content, but not negligible.
+
+Univariate tests (Mann-Whittney U test for numerics and chi-squared test for categories), supplemented by Benjamini-Hochberg false discovery rate (fdr) correction, show that, with alpha level of 0.05,
+- in the case of `loan_int_rate` one cannot reject H0 that assumes the same distributions/rates among null row and non-null rows -> the missingness pattern in `loan_int_rate` is not likely to associate with other observed variables. The null pattern is likely MCAR. 
+- in the `person_emp_length_years`, one can reject H0 for some variables, such as `person_income_usd` or `other_debt_usd`. There are certain correlation here. The null pattern is likely MAR.
+
+The size of missingness together with random patterns suggest that one might use kNN for imputation.
+
+### **Target distribution**
+
+<center>
+<img src="./images/target_distribution.png"
+     alt="nulls distribution" width="400"/>
+</center>
+
+The default-to-non-default rate is about 1:3.58. So, this target is imbalanced. However, the class imbalance is mild.  
+
+### **Target distribution by demographic features**
+
+<center>
+<img src="./images/target_on_cat_dem.png"
+     alt="nulls distribution" width="600"/>
+<img src="./images/target_on_num_dem.png"
+     alt="nulls distribution" width="600"/>
+</center>
+
+The distribution of the loan status is the (nearly) same for different categories in following demographic features: marital status, gender, country, employment type, education level. These features therefore would not help in modelling, better to remove.
+
+The differences in target distribution among categories in city and state are small. These two features have rather high cardinality, so with OHE encoding, it would increase the feature space, make data look very sparse, and make the model training and inference slow. So, it would be harmful rather than helpful. Good idea to remove them.
+
+Home ownership carries useful information related to the target: borrowers with owned house or mortgage are less likely to default. This feature is a useful predictor.
+
+Income has a clear correlation with the loan status: non-default borrowers are likely to have higher income. This os also a good predictor.
+
+### **Target distribution by financial features**
+
+<center>
+<img src="./images/target_on_cat_fin.png"
+     alt="nulls distribution" width="600"/>
+<img src="./images/target_on_num_fin.png"
+     alt="nulls distribution" width="600"/>
+</center>
+
+There are visible correlations with the target for most of financial features. Some typical relations:
+- Better loan grade, lower default rate. There are sharp changes between C and D, and between F and G. 
+- Borrowerd with previous default history are more likely to default
+- Higher interest rate more likely leads to default.
+- Borrowers with other debts are less likely to default.
+- Higher loan to income or debt to income ratio, more likely to default.
+
+### **Correlation heatmap**
+
+<center>
+<img src="./images/correlation_heatmap.png"
+     alt="nulls distribution" width="600"/>
+</center>
+
+There is a noticable strong correlation (approx. 1.0) between `loan_percent_income` and `loan_to_income_ratio`. A follow-up analysis showed that one should keep only 1 of these two (say, `loan_to_income_ratio`) and the their ratio for linear model (logistic regression) to avoid multicollinearity. For tree-based models, it is fine to keep both, and also their ratio. 
+
+Consequently, we have two datasets: 1 with both (df_trees), and 1 with only `loan_to_income_ratio` (df_logit).
+
+
 
 
 
