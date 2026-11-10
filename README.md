@@ -3,7 +3,8 @@
 
 Machine Learning Classifiers for CreditWorthiness Indicator.     
 ***Author***: Anh Dung Le  
-***Date***: November 2026  
+***Date***: November 2026   
+**License**: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en)   
 @CodeAlpha internship
 
 
