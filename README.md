@@ -68,7 +68,7 @@ The dataset used in this project is from [Kaggle](https://www.kaggle.com/dataset
 
 </center>
 
-## <font color="orange"> 2. Data analysis </font>
+## <font color="orange"> 3. Data analysis </font>
 
 ### **Basic observation**
 - 29 Attributes:  float (9), int (8), str (12)
@@ -159,6 +159,65 @@ There are visible correlations with the target for most of financial features. S
 There is a noticable strong correlation (approx. 1.0) between `loan_percent_income` and `loan_to_income_ratio`. A follow-up analysis showed that one should keep only 1 of these two (say, `loan_to_income_ratio`) and the their ratio for linear model (logistic regression) to avoid multicollinearity. For tree-based models, it is fine to keep both, and also their ratio. 
 
 Consequently, we have two datasets: 1 with both (df_trees), and 1 with only `loan_to_income_ratio` (df_logit).
+
+## <font color="orange"> 4. Classification machines</font>
+
+### **Train and test sets**: 
+Train-test stratified split, with test size is 0.2
+
+### **Preprocessing pipeline**
+
+* Categorical Encoding:
+    - Ordinal Encoding: `loan_grade`
+    - OHE for other categorical features
+* Missing values imputation: kNN imputation (with k being tuned)
+* Standard scaling for numerical features (for logistic regression and when using kNN with distance weights)
+
+### <font color="navyblue"> **4.1 Baseline models: DummyClassifier and Shallow Decision Tree** </font>
+
+**Why baselines?** A easy-to-build and informative reference point to test the performance of a more complex model. 
+
+**DummyClassifier**. This is a minimum floor for every classifier. It provides zero-learning result; so if a model really learns something properly from the input, even a bit, it should have a better performance.
+
+The performances of three Dummy Classifiers on the test set are reported below
+
+| Strategy | Accuracy | Balanced accurracy | F1 (default/minority) | F1 macro | ROC-AUC | PR-AUC (avg. precision) |
+|-|-|-|-|-|-|-| 
+|most-frequent| 0.782 | 0.500 | 0.000 | 0.439 |0.500|0.218|
+|stratified (seed=42)| 0.665 | 0.508 | 0.230 | 0.508 | 0.508 | 0.221 |  
+|constant (constant=1)| 0.218 | 0.500| 0.358| 0.179| 0.500| 0.218|
+
+Except for `Accuracy`, we should expect higher values for other merics in the above table for a model truly learning something.
+
+**Shallow Tree.** We go to a bit more complex model: DecisionTree with fixed hyperparameters: shallow tree's `max_depth=5`, `min_samples_leaf=20`, `random_state=42`, `class_weight="balanced"`, and others are default. We don't keep `max_depth=None, min_samples_leaf=1` to avoid overfitting (memorize rather than generalise). DecisionTree has built-in support for nulls by settting the hyperparameter `splitter='best'` by default. However, here we consider both treatments for nulls: leave them as is, and impute using kNN. Consequently, there are two pipelines. The kNN imputer uses the default k value (`n_neighbors = 5`), weights by (inverse) distance, and adds a null indicator.  
+
+The two pipelines are shown below. In turns out that the obtained metrics for two pipeline are appprox. the same (only negligible difference in PR-AUC).  
+
+<center>
+<img src="./images/dt_impute_pipeline.png"
+     alt="nulls distribution" width="360"/>
+<img src="./images/dt_nimpute_pipeline.png"
+     alt="nulls distribution" width="360"/> 
+</center>
+
+The performance is given in the following table. Gain is measured against the strongest of three trivial classifiers (most frequent, stratified random, always positive) for each metric. DT baseline is substantially and clearly above every no-skill reference (the 95% CI excludes the floor)
+
+| Metric | Test | Dummy (all) | Gain (Test-Dummy)| Train |
+|-|-|-|-|-|
+|PR-AUC (avg. precision) | 0.804 [0.786, 0.821] (95% CI) | 0.218 | +0.586 | 0.817 |
+|ROC-AUC | 0.880 | 0.500 | +0.380 | 0.894 |
+|Balanced accuracy | 0.839 | 0.500 | +0.339 | 0.848 |
+|F1 (default) | 0.733 | 0.358 | + 0.375 | 0.744 |
+|F1 (macro) | 0.827 | 0.495 | +0.332 | 0.833 |
+|Accuracy | 0.878 | 0.782 | +0.096 | 0.881 |
+
+PR-AUC is about 3.7x the prevalence (0.281), and default-class F1 is roughly double the always-default floor (0.733 vs 0.358). The model predicts the defaults (1) with 77% recall at 70% precision. The train and test scores also differ by only about 0.01, so the result is not an overfitting artifact. This is a strong baseline.
+
+### <font color="navyblue"> **4.2 Tuning Logistic Regression** </font>
+
+(in progress)
+
+
 
 
 
