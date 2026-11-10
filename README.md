@@ -211,6 +211,11 @@ The performance is given in the following table. Gain is measured against the st
 |F1 (macro) | 0.827 | 0.495 | +0.332 | 0.833 |
 |Accuracy | 0.878 | 0.782 | +0.096 | 0.881 |
 
+<center>
+<img src="./images/confusion_matrix_dt.png"
+     alt="nulls distribution" width="360"/>
+</center>
+
 PR-AUC is about 3.7x the prevalence (0.281), and default-class F1 is roughly double the always-default floor (0.733 vs 0.358). The model predicts the defaults (1) with 77% recall at 70% precision. The train and test scores also differ by only about 0.01, so the result is not an overfitting artifact. This is a strong baseline.
 
 ### <font color="navyblue"> **4.2 Tuning Logistic Regression** </font>
