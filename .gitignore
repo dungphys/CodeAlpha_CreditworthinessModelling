@@ -1,0 +1,7 @@
+.venv
+# Ignore everything inside the folder
+data/processed-data/*
+
+# Exception: Do not ignore the .gitkeep file
+!data/processed-data/.gitkeep
+
