@@ -61,6 +61,7 @@ With the environment active:
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
+(Replace `python` by `python3` in macOS and Linux.)
 
 ## 4. Register the environment as a Jupyter kernel
  
@@ -77,6 +78,7 @@ If `jupyter` or `notebook` is not listed in `requirements.txt`, install it too:
 python -m pip install notebook
 ```
  
+(Replace `python` by `python3` in macOS and Linux.)    
 (Use `jupyterlab` instead if you prefer JupyterLab.)
 
 ## 5. Launch the notebooks
