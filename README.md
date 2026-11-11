@@ -7,6 +7,8 @@ Machine Learning Classifiers for Creditworthiness Indicator.
 **License**: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en)   
 @CodeAlpha internship
 
+>**NOTE**: This document is for reporting and discussing modelling results. Instructions on how to run the notebooks yourself can be found in `how-to-run.md`.
+
 
 ## <font color="orange"> 1. Objective </font>
 
@@ -14,7 +16,7 @@ This is a hands-on project within the one-month **CodeAlpha** 2026 internship pr
 
 **What is Creditworthiness?** Creditworthiness is an appraisal of a potential borrower's ability and willingness to repay debts by a lender such as a bank (see [Jim Akin (2023) - Experian](https://www.experian.com/blogs/ask-experian/what-is-creditworthiness/)). This can be determined from credit report and demographic information. 
 
-**Why does this matter?** This indicator helps lenders (e.g., banks) make decisions and minimize the financial risks on bab debts. A creditworthy customer will find it easier and cheaper to access credit (and vice versa).  
+**Why does this matter?** This indicator helps lenders (e.g., banks) make decisions and minimize the financial risks on bab debts. A creditworthy customer will find it easier and cheaper to access credit (and vice versa). 
 
 ## <font color="orange"> 2. Data </font>
 
