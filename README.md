@@ -159,9 +159,13 @@ There are visible correlations with the target for most of financial features. S
      alt="nulls distribution" width="600"/>
 </center>
 
-There is a noticable strong correlation (approx. 1.0) between `loan_percent_income` and `loan_to_income_ratio`. A follow-up analysis showed that one should keep only 1 of these two (say, `loan_to_income_ratio`) and the their ratio for linear model (logistic regression) to avoid multicollinearity. For tree-based models, it is fine to keep both, and also their ratio. 
+There is a noticable strong correlation (approx. 1.0) between `loan_percent_income` and `loan_to_income_ratio`. A follow-up analysis showed that one should keep only 1 of these two (say, `loan_to_income_ratio`) and the their ratio to avoid multicollinearity. This is important for logistic regression. For tree-based models, such multicollinearity is not harmful.
 
-Consequently, we have two datasets: 1 with both (df_trees), and 1 with only `loan_to_income_ratio` (df_logit).
+There is also a strong linear correlation between `debt_to_income_ratio` and `loan_to_income_ratio`, and between `log1p(other_debt_usd)` and `log1p(person_income_usd)` (linear bands). It turns out that introducing `other_debt_to_income_ratio = debt_to_income_ratio - loan_to_income_ratio`, or just `other_debt_usd/person_income_usd` and removing `other_debt_usd` is a solution for such collinearities.
+
+The last meaningful feature engineering is to log transform `person_income_usd` and `loan_amount_usd`. These two variables are skewed and varyin a wide range.
+ 
+
 
 ## <font color="orange"> 4. Classification machines</font>
 
