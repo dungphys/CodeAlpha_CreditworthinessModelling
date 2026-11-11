@@ -1,7 +1,7 @@
 ------
 # <font color="orange"> Creditworthiness Predictive Modelling </font>
 
-Machine Learning Classifiers for CreditWorthiness Indicator.     
+Machine Learning Classifiers for Creditworthiness Indicator.     
 ***Author***: Anh Dung Le  
 ***Date***: November 2026   
 **License**: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en)   
@@ -171,12 +171,12 @@ Train-test stratified split, with test size is 0.2
 * Categorical Encoding:
     - Ordinal Encoding: `loan_grade`
     - OHE for other categorical features
-* Missing values imputation: kNN imputation (with k being tuned)
+* Missing values imputation: kNN imputation
 * Standard scaling for numerical features (for logistic regression and when using kNN with distance weights)
 
 ### <font color="navyblue"> **4.1 Baseline models: DummyClassifier and Shallow Decision Tree** </font>
 
-**Why baselines?** A easy-to-build and informative reference point to test the performance of a more complex model. 
+**Why baseline?** A easy-to-build and informative reference point to test the performance of a more complex model. 
 
 **DummyClassifier**. This is a minimum floor for every classifier. It provides zero-learning result; so if a model really learns something properly from the input, even a bit, it should have a better performance.
 
@@ -190,7 +190,7 @@ The performances of three Dummy Classifiers on the test set are reported below
 
 Except for `Accuracy`, we should expect higher values for other merics in the above table for a model truly learning something.
 
-**Shallow Tree.** We go to a bit more complex model: DecisionTree with fixed hyperparameters: shallow tree's `max_depth=5`, `min_samples_leaf=20`, `random_state=42`, `class_weight="balanced"`, and others are default. We don't keep `max_depth=None, min_samples_leaf=1` to avoid overfitting (memorize rather than generalise). DecisionTree has built-in support for nulls by settting the hyperparameter `splitter='best'` by default. However, here we consider both treatments for nulls: leave them as is, and impute using kNN. Consequently, there are two pipelines. The kNN imputer uses the default k value (`n_neighbors = 5`), weights by (inverse) distance, and adds a null indicator.  
+**Shallow Tree.** We go to a bit more complex model for the baseline: DecisionTree with fixed hyperparameters: shallow tree's `max_depth=5`, `min_samples_leaf=20`, `random_state=42`, `class_weight="balanced"`, and others are default. We don't keep `max_depth=None, min_samples_leaf=1` to avoid overfitting (memorize rather than generalise). DecisionTree has built-in support for nulls by settting the hyperparameter `splitter='best'` by default. However, here we consider both treatments for nulls: leave them as is, and impute using kNN. Consequently, there are two pipelines. The kNN imputer uses the default k value (`n_neighbors = 5`), weights by (inverse) distance, and adds a null indicator.  
 
 The two pipelines are shown below. In turns out that the obtained metrics for two pipeline are appprox. the same (only negligible difference in PR-AUC).  
 
@@ -201,7 +201,7 @@ The two pipelines are shown below. In turns out that the obtained metrics for tw
      alt="nulls distribution" width="360"/> 
 </center>
 
-The performance is given in the following table. Gain is measured against the strongest of three trivial classifiers (most frequent, stratified random, always positive) for each metric. DT baseline is substantially and clearly above every no-skill reference (the 95% CI excludes the floor)
+The performance is given in the following table. Gain is measured against the strongest of three trivial classifiers (most frequent (always non-default), stratified random, always default) for each metric. DT baseline is substantially and clearly above every no-skill reference (the 95% CI PR-AUC excludes the floor)
 
 | Metric | Test | Dummy (all) | Gain (Test-Dummy)| Train |
 |-|-|-|-|-|
@@ -217,7 +217,7 @@ The performance is given in the following table. Gain is measured against the st
      alt="nulls distribution" width="360"/>
 </center>
 
-PR-AUC is about 3.7x the prevalence (0.281), and default-class F1 is roughly double the always-default floor (0.733 vs 0.358). The model predicts the defaults (1) with 77% recall at 70% precision. The train and test scores also differ by only about 0.01, so the result is not an overfitting artifact. This is a strong baseline.
+PR-AUC is about 3.7x the prevalence (0.281), and default-class F1 is roughly double the always-default floor (0.733 vs 0.358). The model predicts the defaults (1) with 77% recall at 70% precision. The train and test scores also differ by only about 0.01, so the result is not an overfitting artifact. Overall, this is a strong baseline.
 
 ### <font color="navyblue"> **4.2 Tuning Logistic Regression** </font>
 
