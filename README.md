@@ -250,7 +250,7 @@ PR-AUC is about 3.7x the prevalence (0.218), and default-class F1 is roughly dou
      alt="nulls distribution" width="450"/>
 </center>
 
-**Feature Importance**: In both pipelines, the three most important features are the same: loan_grade_sep, high_lti_x_rent, and person_income_usd. Their scores are significantly higher than remainders. The following plots show the feature importance of top 12 features. 
+**Feature Importance**: In both pipelines, the three most important features are the same: loan_grade_sep, high_lti_x_rent, and person_income_usd. Their scores are significantly higher than remainders. The following plots show the feature importance of top 12 features 
 
 <center>
 <img src="./images/FI_dt_with_knn.png"
