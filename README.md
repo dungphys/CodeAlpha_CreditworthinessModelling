@@ -210,9 +210,9 @@ The two pipelines together with their performances are shown below. In turns out
 
 <center>
 <img src="./images/dt_pipeline_with_knn.png"
-     alt="nulls distribution" width="360"/>
+     alt="nulls distribution" width="330"/>
 <img src="./images/confusion_matrix_dt.png"
-     alt="nulls distribution" width="360"/>
+     alt="nulls distribution" width="330"/>
 
 | Metric | Test | Dummy (all) | Gain (Test-Dummy)| Train |
 |-|-|-|-|-|
@@ -229,9 +229,9 @@ The two pipelines together with their performances are shown below. In turns out
 
 <center>
 <img src="./images/dt_pipeline_no_knn.png"
-     alt="nulls distribution" width="360"/> 
+     alt="nulls distribution" width="330"/> 
 <img src="./images/confusion_matrix_dt_no_knn.png"
-     alt="nulls distribution" width="360"/>
+     alt="nulls distribution" width="330"/>
 
 | Metric | Test | Dummy (all) | Gain (Test-Dummy)| Train |
 |-|-|-|-|-|
@@ -243,9 +243,47 @@ The two pipelines together with their performances are shown below. In turns out
 |Accuracy | 0.907 | 0.782 | +0.125 | 0.911 |
 </center>
 
-PR-AUC is about 3.7x the prevalence (0.218), and default-class F1 is roughly double the always-default floor (0.733 vs 0.358). The model with kNN (without kNN) predicts the defaults (1) with **77% (72.6%) recall** and **70.8% (82.9%) precision**. The train and test scores also differ by only about 0.01, so the result is not an overfitting artifact. Overall, this is a strong baseline.
+PR-AUC is about 3.7x the prevalence (0.218), and default-class F1 is roughly double the always-default floor (0.733 vs 0.358). The model with kNN (without kNN) predicts the defaults (1) with **77% (72.6%) recall** and **70.8% (82.9%) precision**. The train and test scores also differ by only about 0.01, so the result is not an overfitting artifact. Overall, this is a strong baseline. Tree structure for the no-kNN pipeline is shown below
+
+<center>
+<img src="./images/tree.png"
+     alt="nulls distribution" width="450"/>
+</center>
 
 ### <font color="navyblue"> **4.2 Tuning Logistic Regression** </font>
+
+We use optuna study and cross validation for hyperparameter tuning. Following hyperparams are tuned:
+- `scaler`: [StandardScaler(), RobustScaler()]
+- `n_neighbors` and `weights` of kNN imputer
+- `C`, `solver`, `l1_ratio`, and `class_weight` of LogisticRegression
+
+The choice of optimization metric depends on the business goal. Here, <font color="lightgreen">**we assume that both false positive (losing good customers) and false negative (taking on credit risk) are equally costly. Because both errors cannot be ignored, we need a score that balances both. F1 score is what we want.** </font>
+
+Since F1 depends on the decision threshold, the threshold is tuned jointly with the pipeline hyperparams instead of being fixed at 0.5. Keeping the 0.5 threshold would be not a good idea, as our data is (mildly) imbalanced. 
+
+<center>
+<img src="./images/logit_pipeline.png"
+     alt="nulls distribution" width="330"/> 
+<img src="./images/confusion_matrix_logit.png"
+     alt="nulls distribution" width="330"/>
+
+| Metric | Test | DT (with kNN)  | Gain (Logit-DT)| Train |
+|-|-|-|-|-|
+|PR-AUC (avg. precision)| 0.816 | 0.802 | +0.014 | 0.830  |
+|ROC-AUC| 0.904 | 0.880 | +0.024 | 0.913 |
+|Balanced accuracy (macro-avg recall)| 0.824  | 0.841 | -0.017 | 0.835|
+|Recall (default)| 0.702 |0.770 | -0.068 | 0.725 |
+|Precision (default)| 0.784 | 0.708 | +0.076 | 0.783 |
+|Precision (macro)| 0.851 | 0.821 | +0.030 | 0.854 |
+|F1 (default)| 0.740 | 0.738 | +0.002 | 0.753 |
+|F1 (macro)| 0.836 | 0.830 | +0.006 | 0.844 |
+|Accuracy| 0.893 | 0.881 | +0.012 | 0.896 |
+</center>
+
+The best CV parameters for threshold and class imbalance are 0.400 and 1.148, respectively.
+
+From above table we can see that, the tuned Logit Classifier performs slightly better than the Shallow Tree baseline. The recall is sacrified to gain better precision. In particular, the precision on default is improved by 7.6%. This is the trade-off. 
+
 
 
 
