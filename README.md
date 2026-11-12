@@ -163,8 +163,14 @@ There is a noticable strong correlation (approx. 1.0) between `loan_percent_inco
 
 There is also a strong linear correlation between `debt_to_income_ratio` and `loan_to_income_ratio`, and between `log1p(other_debt_usd)` and `log1p(person_income_usd)` (linear bands). It turns out that introducing `other_debt_to_income_ratio = debt_to_income_ratio - loan_to_income_ratio`, or just `other_debt_usd/person_income_usd` and removing `other_debt_usd` is a solution for such collinearities.
 
-The last meaningful feature engineering is to log transform `person_income_usd` and `loan_amount_usd`. These two variables are skewed and varyin a wide range.
- 
+Based on the data behavior, we also create some new features. These take into account some nonlinear interactions and would be useful for linear model. They include:
+- high_lti: is loan_to_income_ratio > 0.3?
+- loan_grade_sep: separation between ABC and DEFG load grade groups.
+- high_income: is the income high (log1p(income)>9.9)?
+- high_lti_x_rent: high_lti multiply by (is rent?) -> high lti + rent is more risky.
+
+Also, log-transform features are created: log_loan_amount_usd and log_person_income_usd.
+
 
 
 ## <font color="orange"> 4. Classification machines</font>
@@ -188,7 +194,7 @@ Train-test stratified split, with test size is 0.2
 
 The performances of three Dummy Classifiers on the test set are reported below
 
-| Strategy | Accuracy | Balanced accurracy | F1 (default/minority) | F1 macro | ROC-AUC | PR-AUC (avg. precision) |
+| Strategy | Accuracy | Balanced accurracy (macro-avg recall) | F1 (default/minority) | F1 macro | ROC-AUC | PR-AUC (avg. precision) |
 |-|-|-|-|-|-|-| 
 |most-frequent| 0.782 | 0.500 | 0.000 | 0.439 |0.500|0.218|
 |stratified (seed=42)| 0.665 | 0.508 | 0.230 | 0.508 | 0.508 | 0.221 |  
@@ -198,41 +204,48 @@ Except for `Accuracy`, we should expect higher values for other merics in the ab
 
 **Shallow Tree.** We go to a bit more complex model for the baseline: DecisionTree with fixed hyperparameters: shallow tree's `max_depth=5`, `min_samples_leaf=20`, `random_state=42`, `class_weight="balanced"`, and others are default. We don't keep `max_depth=None, min_samples_leaf=1` to avoid overfitting (memorize rather than generalise). DecisionTree has built-in support for nulls by settting the hyperparameter `splitter='best'` by default. However, here we consider both treatments for nulls: leave them as is, and impute using kNN. Consequently, there are two pipelines. The kNN imputer uses the default k value (`n_neighbors = 5`), weights by (inverse) distance, and adds a null indicator.  
 
-The two pipelines are shown below. In turns out that the obtained metrics for two pipeline are appprox. the same (only negligible difference in PR-AUC).  
+The two pipelines together with their performances are shown below. In turns out that the obtained metrics for two pipelines are quite similar, and the pipeline without kNN imputer behave a bit better. Gain in the tables is measured against the strongest of three trivial classifiers (most frequent (always non-default), stratified random, always default) for each metric. DT baselines are substantially and clearly above every no-skill reference (the 95% CI PR-AUC excludes the floor)
+
+- With kNN imputer:
 
 <center>
-<img src="./images/dt_impute_pipeline.png"
+<img src="./images/dt_pipeline_with_knn.png"
      alt="nulls distribution" width="360"/>
-<img src="./images/dt_nimpute_pipeline.png"
-     alt="nulls distribution" width="360"/> 
-</center>
-
-The performance is given in the following table. Gain is measured against the strongest of three trivial classifiers (most frequent (always non-default), stratified random, always default) for each metric. DT baseline is substantially and clearly above every no-skill reference (the 95% CI PR-AUC excludes the floor)
+<img src="./images/confusion_matrix_dt.png"
+     alt="nulls distribution" width="360"/>
 
 | Metric | Test | Dummy (all) | Gain (Test-Dummy)| Train |
 |-|-|-|-|-|
-|PR-AUC (avg. precision) | 0.804 [0.786, 0.821] (95% CI) | 0.218 | +0.586 | 0.817 |
-|ROC-AUC | 0.880 | 0.500 | +0.380 | 0.894 |
-|Balanced accuracy | 0.839 | 0.500 | +0.339 | 0.848 |
-|F1 (default) | 0.733 | 0.358 | + 0.375 | 0.744 |
-|F1 (macro) | 0.827 | 0.495 | +0.332 | 0.833 |
-|Accuracy | 0.878 | 0.782 | +0.096 | 0.881 |
-
-<center>
-<img src="./images/confusion_matrix_dt.png"
-     alt="nulls distribution" width="360"/>
+|PR-AUC (avg. precision) | 0.802 [0.785, 0.820] (95% CI) | 0.218 | +0.584 | 0.817 |
+|ROC-AUC | 0.880 | 0.500 | +0.380 | 0.895 |
+|Balanced accuracy (macro-avg recall) | 0.841 | 0.500 | +0.341 | 0.851 |
+|F1 (default) | 0.744 | 0.358 | + 0.386 | 0.750 |
+|F1 (macro) | 0.830 | 0.495 | +0.335 | 0.838 |
+|Accuracy | 0.881 | 0.782 | +0.099 | 0.885 |
 </center>
 
-PR-AUC is about 3.7x the prevalence (0.281), and default-class F1 is roughly double the always-default floor (0.733 vs 0.358). The model predicts the defaults (1) with 77% recall at 70% precision. The train and test scores also differ by only about 0.01, so the result is not an overfitting artifact. Overall, this is a strong baseline.
+
+- Without kNN imputer:
+
+<center>
+<img src="./images/dt_pipeline_no_knn.png"
+     alt="nulls distribution" width="360"/> 
+<img src="./images/confusion_matrix_dt_no_knn.png"
+     alt="nulls distribution" width="360"/>
+
+| Metric | Test | Dummy (all) | Gain (Test-Dummy)| Train |
+|-|-|-|-|-|
+|PR-AUC (avg. precision) | 0.815 [0.797, 0.831] (95% CI) | 0.218 | +0.597 | 0.831 |
+|ROC-AUC | 0.880 | 0.500 | +0.380 | 0.895 |
+|Balanced accuracy (macro-avg recall) | 0.842 | 0.500 | +0.342 | 0.849 |
+|F1 (default) | 0.774 | 0.358 | + 0.416 | 0.784 |
+|F1 (macro) | 0.858 | 0.495 | +0.363 | 0.864 |
+|Accuracy | 0.907 | 0.782 | +0.125 | 0.911 |
+</center>
+
+PR-AUC is about 3.7x the prevalence (0.218), and default-class F1 is roughly double the always-default floor (0.733 vs 0.358). The model with kNN (without kNN) predicts the defaults (1) with **77% (72.6%) recall** and **70.8% (82.9%) precision**. The train and test scores also differ by only about 0.01, so the result is not an overfitting artifact. Overall, this is a strong baseline.
 
 ### <font color="navyblue"> **4.2 Tuning Logistic Regression** </font>
-
-(in progress)
-
-
-
-
-
 
 
 
