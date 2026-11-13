@@ -248,6 +248,8 @@ PR-AUC is about 3.7x the prevalence (0.218), and default-class F1 is roughly dou
 <center>
 <img src="./images/tree.png"
      alt="nulls distribution" width="450"/>
+
+Tree structure
 </center>
 
 **Feature Importance**: In both pipelines, the three most important features are the same: loan_grade_sep, high_lti_x_rent, and person_income_usd. Their scores are significantly higher than remainders. The following plots show the feature importance of top 12 features 
@@ -257,6 +259,8 @@ PR-AUC is about 3.7x the prevalence (0.218), and default-class F1 is roughly dou
      alt="nulls distribution" width="450"/>
 <img src="./images/FI_dt_without_knn.png"
      alt="nulls distribution" width="450"/>
+
+Tree Feature Importance
 </center>
 
 ### <font color="navyblue"> **4.2 Tuning Logistic Regression** </font>
@@ -291,8 +295,32 @@ Since F1 depends on the decision threshold, the threshold is tuned jointly with 
 
 The best CV parameters for threshold and class imbalance are 0.400 and 1.148, respectively.
 
-From above table we can see that, the tuned Logit Classifier performs slightly better than the Shallow Tree baseline. The recall is sacrified to gain better precision. In particular, the precision on default is improved by 7.6%. This is the trade-off. 
+The tuned logistic regression ranks borrowers better than the shallow tree baseline, with higher ROC-AUC (0.904 vs 0.880) and PR-AUC (0.816 vs 0.802). At the chosen threshold the two models are tied on default F1 (0.740 vs 0.738), but they make different trade-offs: the logistic regression gains 7.6 pp of precision on the default class (0.784 vs 0.708) and loses 6.8 pp of recall (0.702 vs 0.770). This means that, the logit flags fewer borrowers, and those it flags are more likely to be true defaults, but it misses more real defaults.
+
+**Feature importance.** The SHAP ranking (log-odds) plot is given below
+
+<center>
+<img src="./images/shap_rank_logit.png"
+     alt="nulls distribution" width="400"/> 
+
+Importance ranking of original features by SHAP values
+</center>
+
+The top 2 features are the same as the tree feature importance in the case of shallow tree. We see that, the model relies most on loan intent, income, home ownership and loan-to-income ratio, plus two related engineered features.
+
+To see which features pushed the model toward predicting "default" and which pushed it away, let's look at the direction beeswarm plot below
+
+<center>
+<img src="./images/shap_beeswarm_logit.png"
+     alt="nulls distribution" width="400"/> 
+
+Direction of impact
+</center>
+
+Positive direction means more likely to default, and negatives mean less likely. This suggests that the low risk group includes some characteristics like loan grade A and B, higher income, owning home, and venture loan intent. Higher risk includes high loan-to-income ratio, low income, and loan for debt consolidation.   
 
 
+### <font color="navyblue"> **4.2 Tuning Random Forest** </font>
 
-
+Now we train and tune an ensemble of trees (Random Forest).  
+(in progress)
