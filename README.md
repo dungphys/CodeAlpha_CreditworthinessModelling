@@ -1,15 +1,34 @@
 ------
 # <font color="orange"> Creditworthiness Predictive Modelling </font>
-
+<a id="start"></a>
 Machine Learning Classifiers for Creditworthiness Indicator.     
 ***Author***: Anh Dung Le  
 ***Date***: November 2026   
 **License**: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en)   
-@CodeAlpha internship
+@CodeAlpha Internship
+
+
+***
+## **Table of Contents**
+
+<font color="navyblue">
+
+1. [Objective](#s01)
+2. [Data information](#s02)
+3. [Data analysis](#s03)
+4. [Classification machines](#s04)  
+     > 4.1. [Baseline models: DummyClassifier and Shallow Decision Tree](#ss41)  
+     > 4.2. [Tuning Logistic Regression](#ss42)  
+     > 4.3. [Tuning Random Forest Classififer](#ss43)  
+     > 4.4. [Tuning XGBoost Classifier](#ss44)
+
+</font>
+
+***
 
 >**NOTE**: This document is for reporting and discussing modelling results. Instructions on how to run the notebooks yourself can be found in `how-to-run.md`.
 
-
+<a id="s01"></a>
 ## <font color="orange"> 1. Objective </font>
 
 This is a hands-on project within the one-month **CodeAlpha** 2026 internship program in machine learning. The project aims to explore an available credit risk dataset and build a predictive model to determine the creditworthiness (Good/Bad) of customers based on it.  
@@ -18,7 +37,8 @@ This is a hands-on project within the one-month **CodeAlpha** 2026 internship pr
 
 **Why does this matter?** This indicator helps lenders (e.g., banks) make decisions and minimize the financial risks on bab debts. A creditworthy customer will find it easier and cheaper to access credit (and vice versa). 
 
-## <font color="orange"> 2. Data </font>
+<a id="s02"></a>
+## <font color="orange"> 2. Data information </font>
 
 ### **Metadata**
 
@@ -71,6 +91,7 @@ The dataset used in this project is from [Kaggle](https://www.kaggle.com/dataset
 
 </center>
 
+<a id="s03"></a>
 ## <font color="orange"> 3. Data analysis </font>
 
 ### **Basic observation**
@@ -172,7 +193,7 @@ Based on the data behavior, we also create some new features. These take into ac
 Also, log-transform features are created: log_loan_amount_usd and log_person_income_usd.
 
 
-
+<a id="s04"></a>
 ## <font color="orange"> 4. Classification machines</font>
 
 ### **Train and test sets**: 
@@ -186,6 +207,7 @@ Train-test stratified split, with test size is 0.2
 * Missing values imputation: kNN imputation
 * Standard scaling for numerical features (for logistic regression and when using kNN with distance weights)
 
+<a id="ss41"></a>
 ### <font color="navyblue"> **4.1 Baseline models: DummyClassifier and Shallow Decision Tree** </font>
 
 **Why baseline?** A easy-to-build and informative reference point to test the performance of a more complex model. 
@@ -263,6 +285,7 @@ Tree structure
 Tree Feature Importance
 </center>
 
+<a id="ss42"></a>
 ### <font color="navyblue"> **4.2 Tuning Logistic Regression** </font>
 
 We use optuna study and cross validation for hyperparameter tuning. Following hyperparams are tuned:
@@ -319,8 +342,17 @@ Direction of impact
 
 Positive direction means more likely to default, and negatives mean less likely. This suggests that the low risk group includes some characteristics like loan grade A and B, higher income, owning home, and venture loan intent. Higher risk includes high loan-to-income ratio, low income, and loan for debt consolidation.   
 
-
-### <font color="navyblue"> **4.2 Tuning Random Forest** </font>
+<a id="ss43"></a>
+### <font color="navyblue"> **4.3 Tuning Random Forest Classifier** </font>
 
 Now we train and tune an ensemble of trees (Random Forest).  
 (in progress)
+
+
+
+<a id="ss44"></a>
+### <font color="navyblue"> **4.3 Tuning XGBoost Classifier** </font> 
+(in progress)
+
+
+[Back to the page start](#start)
