@@ -19,8 +19,7 @@ Machine Learning Classifiers for Creditworthiness Indicator.
 4. [Classification machines](#s04)  
      > 4.1. [Baseline models: DummyClassifier and Shallow Decision Tree](#ss41)  
      > 4.2. [Tuning Logistic Regression](#ss42)  
-     > 4.3. [Tuning Random Forest Classififer](#ss43)  
-     > 4.4. [Tuning XGBoost Classifier](#ss44)
+     > 4.3. [Tuning XGBoost Classifier](#ss44)
 
 </font>
 
@@ -293,7 +292,7 @@ We use optuna study and cross validation for hyperparameter tuning. Following hy
 - `n_neighbors` and `weights` of kNN imputer
 - `C`, `solver`, `l1_ratio`, and `class_weight` of LogisticRegression
 
-The choice of optimization metric depends on the business goal. Here, <font color="lightgreen">**we assume that both false positive (losing good customers) and false negative (taking on credit risk) are equally costly. Because both errors cannot be ignored, we need a score that balances both. F1 score is what we want.** </font>
+The choice of optimization metric depends on the business goal. Different metrics answer different questions. Here, <font color="lightgreen">**we assume that both false positive (losing good customers) and false negative (taking on credit risk) are equally costly. Because both errors cannot be ignored, we need a score that balances both. F1 score is what we want.** </font>
 
 Since F1 depends on the decision threshold, the threshold is tuned jointly with the pipeline hyperparams instead of being fixed at 0.5. Keeping the 0.5 threshold would be not a good idea, as our data is (mildly) imbalanced. 
 
@@ -340,19 +339,15 @@ To see which features pushed the model toward predicting "default" and which pus
 Direction of impact
 </center>
 
-Positive direction means more likely to default, and negatives mean less likely. This suggests that the low risk group includes some characteristics like loan grade A and B, higher income, owning home, and venture loan intent. Higher risk includes high loan-to-income ratio, low income, and loan for debt consolidation.   
-
-<a id="ss43"></a>
-### <font color="navyblue"> **4.3 Tuning Random Forest Classifier** </font>
-
-Now we train and tune an ensemble of trees (Random Forest).  
-(in progress)
+Positive direction means more likely to default, and negatives mean less likely. This figure suggests that the low risk group includes some characteristics like loan grade A and B, higher income, owning home, and venture loan intent. Higher risk includes high loan-to-income ratio, low income, and loan for debt consolidation.   
 
 
 
 <a id="ss44"></a>
 ### <font color="navyblue"> **4.3 Tuning XGBoost Classifier** </font> 
 (in progress)
+
+Now we tune a tree-based model, XGBoost.
 
 
 [Back to the page start](#start)
