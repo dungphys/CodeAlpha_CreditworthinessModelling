@@ -19,7 +19,7 @@ Machine Learning Classifiers for Creditworthiness Indicator.
 4. [Classification machines](#s04)  
      > 4.1. [Baseline models: DummyClassifier and Shallow Decision Tree](#ss41)  
      > 4.2. [Tuning Logistic Regression](#ss42)  
-     > 4.3. [Tuning XGBoost Classifier](#ss44)
+     > 4.3. [Tuning XGBoost Classifier](#ss43)
 
 </font>
 
@@ -225,7 +225,7 @@ Except for `Accuracy`, we should expect higher values for other merics in the ab
 
 **Shallow Tree.** We go to a bit more complex model for the baseline: DecisionTree with fixed hyperparameters: shallow tree's `max_depth=5`, `min_samples_leaf=20`, `random_state=42`, `class_weight="balanced"`, and others are default. We don't keep `max_depth=None, min_samples_leaf=1` to avoid overfitting (memorize rather than generalise). DecisionTree has built-in support for nulls by settting the hyperparameter `splitter='best'` by default. However, here we consider both treatments for nulls: leave them as is, and impute using kNN. Consequently, there are two pipelines. The kNN imputer uses the default k value (`n_neighbors = 5`), weights by (inverse) distance, and adds a null indicator.  
 
-The two pipelines together with their performances are shown below. In turns out that the obtained metrics for two pipelines are quite similar, and the pipeline without kNN imputer behave a bit better. Gain in the tables is measured against the strongest of three trivial classifiers (most frequent (always non-default), stratified random, always default) for each metric. DT baselines are substantially and clearly above every no-skill reference (the 95% CI PR-AUC excludes the floor)
+The two pipelines together with their performances are shown below. In turns out that the obtained metrics for two pipelines are quite similar, and the pipeline without kNN imputer behave a bit better. Gain in the tables is measured against the strongest of three trivial classifiers (most frequent (always non-default), stratified random, always default) for each metric. DT baselines are substantially and clearly above every no-skill reference (the 95% CI excludes the floor)
 
 - With kNN imputer:
 
@@ -235,14 +235,16 @@ The two pipelines together with their performances are shown below. In turns out
 <img src="./images/confusion_matrix_dt.png"
      alt="nulls distribution" width="330"/>
 
-| Metric | Test | Dummy (all) | Gain (Test-Dummy)| Train |
-|-|-|-|-|-|
-|PR-AUC (avg. precision) | 0.802 [0.785, 0.820] (95% CI) | 0.218 | +0.584 | 0.817 |
-|ROC-AUC | 0.880 | 0.500 | +0.380 | 0.895 |
-|Balanced accuracy (macro-avg recall) | 0.841 | 0.500 | +0.341 | 0.851 |
-|F1 (default) | 0.744 | 0.358 | + 0.386 | 0.750 |
-|F1 (macro) | 0.830 | 0.495 | +0.335 | 0.838 |
-|Accuracy | 0.881 | 0.782 | +0.099 | 0.885 |
+| Metric                              |  Test |   95% CI       |Dummy (all) | Gain (Test-Dummy)| Train |
+|-------------------------------------|-------|----------------|------------|------------------|-------|
+|PR-AUC (avg. precision)              | 0.802 | [0.786, 0.819] |    0.218   |           +0.584 | 0.817 |
+|ROC-AUC                              | 0.880 | [0.868, 0.892] |    0.500   |           +0.380 | 0.895 |
+|Balanced accuracy (macro-avg recall) | 0.841 | [0.830, 0.853] |    0.500   |           +0.341 | 0.851 |
+|Precision (default)                  | 0.708 | [0.690, 0.727] |    0.230   |           +0.478 | 0.750 |
+|Precision (macro)                    | 0.821 | [0.811, 0.832] |    0.508   |           +0.313 | 0.838 |
+|F1 (default)                         | 0.738 | [0.722, 0.755] |    0.358   |           +0.380 | 0.750 |
+|F1 (macro)                           | 0.830 | [0.820, 0.841] |    0.508   |           +0.322 | 0.838 |
+|Accuracy                             | 0.881 | [0.873, 0.888] |    0.782   |           +0.099 | 0.885 |
 </center>
 
 
@@ -254,17 +256,19 @@ The two pipelines together with their performances are shown below. In turns out
 <img src="./images/confusion_matrix_dt_no_knn.png"
      alt="nulls distribution" width="330"/>
 
-| Metric | Test | Dummy (all) | Gain (Test-Dummy)| Train |
-|-|-|-|-|-|
-|PR-AUC (avg. precision) | 0.815 [0.797, 0.831] (95% CI) | 0.218 | +0.597 | 0.831 |
-|ROC-AUC | 0.880 | 0.500 | +0.380 | 0.895 |
-|Balanced accuracy (macro-avg recall) | 0.842 | 0.500 | +0.342 | 0.849 |
-|F1 (default) | 0.774 | 0.358 | + 0.416 | 0.784 |
-|F1 (macro) | 0.858 | 0.495 | +0.363 | 0.864 |
-|Accuracy | 0.907 | 0.782 | +0.125 | 0.911 |
+| Metric                              |  Test |   95% CI       |Dummy (all) | Gain (Test-Dummy)| Train |
+|-------------------------------------|-------|----------------|------------|------------------|-------|
+|PR-AUC (avg. precision)              | 0.815 | [0.798, 0.831] |    0.218   |           +0.597 | 0.831 |
+|ROC-AUC                              | 0.879 | [0.867, 0.892] |    0.500   |           +0.379 | 0.895 |
+|Balanced accuracy (macro-avg recall) | 0.842 | [0.830, 0.854] |    0.500   |           +0.342 | 0.849 |
+|Precision (default)                  | 0.829 | [0.809, 0.848] |    0.230   |           +0.599 | 0.834 |
+|Precision (macro)                    | 0.877 | [0.866, 0.888] |    0.508   |           +0.369 | 0.882 |
+|F1 (default)                         | 0.774 | [0.757, 0.791] |    0.358   |           +0.416 | 0.784 |
+|F1 (macro)                           | 0.858 | [0.847, 0.869] |    0.508   |           +0.350 | 0.864 |
+|Accuracy                             | 0.907 | [0.901, 0.914] |    0.782   |           +0.125 | 0.911 |
 </center>
 
-PR-AUC is about 3.7x the prevalence (0.218), and default-class F1 is roughly double the always-default floor (0.733 vs 0.358). The model with kNN (without kNN) predicts the defaults (1) with **77% (72.6%) recall** and **70.8% (82.9%) precision**. The train and test scores also differ by only about 0.01, so the result is not an overfitting artifact. Overall, this is a strong baseline. Tree structure for the no-kNN pipeline is shown below
+PR-AUC is about 3.7x the prevalence (0.218), and default-class F1 is roughly double the always-default floor (0.738 vs 0.358). The model with kNN (without kNN) predicts the defaults (1) with **77% (72.6%) recall** and **70.8% (82.9%) precision**. The train and test scores also differ by only about 0.01-0.02, so the result is not an overfitting artifact. Overall, this is quite a strong baseline. Tree structure for the no-kNN pipeline is shown below
 
 <center>
 <img src="./images/tree.png"
@@ -287,14 +291,15 @@ Tree Feature Importance
 <a id="ss42"></a>
 ### <font color="navyblue"> **4.2 Tuning Logistic Regression** </font>
 
-We use optuna study and cross validation for hyperparameter tuning. Following hyperparams are tuned:
+
+**Model selection.** We use optuna study and cross validation for hyperparameter tuning. Following hyperparams are tuned:
 - `scaler`: [StandardScaler(), RobustScaler()]
 - `n_neighbors` and `weights` of kNN imputer
 - `C`, `solver`, `l1_ratio`, and `class_weight` of LogisticRegression
 
 The choice of optimization metric depends on the business goal. Different metrics answer different questions. Here, <font color="lightgreen">**we assume that both false positive (losing good customers) and false negative (taking on credit risk) are equally costly. Because both errors cannot be ignored, we need a score that balances both. F1 score is what we want.** </font>
 
-Since F1 depends on the decision threshold, the threshold is tuned jointly with the pipeline hyperparams instead of being fixed at 0.5. Keeping the 0.5 threshold would be not a good idea, as our data is (mildly) imbalanced. 
+Since F1 depends on the decision threshold, the threshold is tuned jointly with the pipeline hyperparams instead of being fixed at 0.5.
 
 <center>
 <img src="./images/logit_pipeline.png"
@@ -302,22 +307,25 @@ Since F1 depends on the decision threshold, the threshold is tuned jointly with 
 <img src="./images/confusion_matrix_logit.png"
      alt="nulls distribution" width="330"/>
 
-| Metric | Test | DT (with kNN)  | Gain (Logit-DT)| Train |
-|-|-|-|-|-|
-|PR-AUC (avg. precision)| 0.816 | 0.802 | +0.014 | 0.830  |
-|ROC-AUC| 0.904 | 0.880 | +0.024 | 0.913 |
-|Balanced accuracy (macro-avg recall)| 0.824  | 0.841 | -0.017 | 0.835|
-|Recall (default)| 0.702 |0.770 | -0.068 | 0.725 |
-|Precision (default)| 0.784 | 0.708 | +0.076 | 0.783 |
-|Precision (macro)| 0.851 | 0.821 | +0.030 | 0.854 |
-|F1 (default)| 0.740 | 0.738 | +0.002 | 0.753 |
-|F1 (macro)| 0.836 | 0.830 | +0.006 | 0.844 |
-|Accuracy| 0.893 | 0.881 | +0.012 | 0.896 |
+| Metric                              | Test  |     95% CI     |   DT (with kNN)  | Gain (Logit-DT)| Train |
+|-------------------------------------|-------|----------------|---------------------|----------------|-------|
+|PR-AUC (avg. precision)              | 0.816 | [0.800, 0.832] | 0.802 [0.786, 0.819]|    +0.014      | 0.830 |
+|ROC-AUC                              | 0.904 | [0.894, 0.914] | 0.880 [0.868, 0.892]|    +0.024      | 0.913 |
+|Balanced accuracy (macro-avg recall) | 0.824 | [0.812, 0.836] | 0.841 [0.830, 0.853]|    -0.017      | 0.835 |
+|Recall (default)                     | 0.702 | [0.679, 0.726] | 0.770 [0.749, 0.792]|    -0.068      | 0.725 |
+|Precision (default)                  | 0.784 | [0.763, 0.804] | 0.708 [0.690, 0.727]|    +0.076      | 0.783 |
+|Precision (macro)                    | 0.852 | [0.840, 0.863] | 0.821 [0.811, 0.832]|    +0.031      | 0.854 |
+|F1 (default)                         | 0.740 | [0.724, 0.759] | 0.738 [0.722, 0.755]|    +0.002      | 0.753 |
+|F1 (macro)                           | 0.836 | [0.826, 0.848] | 0.830 [0.820, 0.841]|    +0.006      | 0.844 |
+|Accuracy                             | 0.893 | [0.886, 0.900] | 0.881 [0.873, 0.888]|    +0.012      | 0.896 |
+
+(*default:* the positive (1) class -
+*macro:* macro average)
 </center>
 
-The best CV parameters for threshold and class imbalance are 0.400 and 1.148, respectively.
+**Results and limitation.** The best CV parameters for threshold and class imbalance are 0.400 and 1.148, respectively.
 
-The tuned logistic regression ranks borrowers better than the shallow tree baseline, with higher ROC-AUC (0.904 vs 0.880) and PR-AUC (0.816 vs 0.802). At the chosen threshold the two models are tied on default F1 (0.740 vs 0.738), but they make different trade-offs: the logistic regression gains 7.6 pp of precision on the default class (0.784 vs 0.708) and loses 6.8 pp of recall (0.702 vs 0.770). This means that, the logit flags fewer borrowers, and those it flags are more likely to be true defaults, but it misses more real defaults.
+The tuned logistic regression ranks borrowers better than the shallow tree baseline (with kNN imputer), with higher ROC-AUC (0.904 vs 0.880) and PR-AUC (0.816 vs 0.802). At the chosen threshold the two models are tied on default F1 (0.740 vs 0.738), but they make different trade-offs: the logistic regression gains 7.6 pp of precision on the default class (0.784 vs 0.708) and loses 6.8 pp of recall (0.702 vs 0.770). Similar trade-offs are also observed for macro-averaged recall and precision. This means that, the logit flags fewer borrowers, and those it flags are more likely to be true defaults, but it misses more real defaults.
 
 **Feature importance.** The SHAP ranking (log-odds) plot is given below
 
@@ -333,7 +341,7 @@ The top 2 features are the same as the tree feature importance in the case of sh
 To see which features pushed the model toward predicting "default" and which pushed it away, let's look at the direction beeswarm plot below
 
 <center>
-<img src="./images/shap_beeswarm_logit.png"
+<img src="./images/shap_beeswarm_logit.png"4
      alt="nulls distribution" width="400"/> 
 
 Direction of impact
@@ -343,11 +351,47 @@ Positive direction means more likely to default, and negatives mean less likely.
 
 
 
-<a id="ss44"></a>
+<a id="ss43"></a>
 ### <font color="navyblue"> **4.3 Tuning XGBoost Classifier** </font> 
-(in progress)
 
 Now we tune a tree-based model, XGBoost.
+
+**Model selection.** Hyperparameters were tuned with Optuna (TPE sampler, median pruner, 5-fold CV), maximizing the best-threshold F1 on each validation fold. The decision threshold (0.469) was then fixed from pooled out-of-fold predictions and applied unchanged to the held-out test set. We use F1 because we assume false positives (rejecting good customers) and false negatives (accepting credit risk) are comparably costly, so neither precision nor recall should be optimized alone.
+
+<center>
+
+<img src="./images/xgb_pipeline.png"
+     alt="nulls distribution" width="400"/>
+
+<img src="./images/confusion_matrix_xgb.png"
+     alt="nulls distribution" width="400"/> 
+
+
+| Metric                               |  Test |      95% CI    | Gain (XGB-DT) | Gain (XGB-Logit) | Train |
+|--------------------------------------|-------|----------------|---------------|------------------|-------|
+| PR-AUC (avg. precision)              | 0.902 | [0.891, 0.913] |     +0.087    |    +0.086        | 0.937 |
+| ROC-AUC                              | 0.946 | [0.939, 0.953] |     +0.067    |    +0.042        | 0.969 |
+| Balanced accuracy (macro-avg recall) | 0.863 | [0.852, 0.875] |     +0.021    |    +0.039        | 0.876 |
+| Recall (default)                     | 0.730 | [0.708, 0.754] |     +0.004    |    +0.028        | 0.754 |
+| Precision (default)                  | 0.982 | [0.974, 0.990] |     +0.153    |    +0.198        | 0.986 |
+| Precision (macro)                    | 0.956 | [0.951, 0.961] |     +0.079    |    +0.104        | 0.961 |
+| F1 (default)                         | 0.838 | [0.822, 0.854] |     +0.064    |    +0.098        | 0.855 |
+| F1 (macro)                           | 0.900 | [0.891, 0.909] |     +0.042    |    +0.064        | 0.910 |
+| Accuracy                             | 0.938 | [0.933, 0.944] |     +0.031    |    +0.045        | 0.944 |
+
+(*default:* the positive (1) class -
+*macro:* macro average. Compared with DT without kNN imputer)
+</center>
+
+
+**Results.** Out-of-fold F1 at tuned threshold is 0.844, best CV F1 is 0.846, and test F1 was 0.838; so the threshold and tuning generalized. On the test set, precision (1) is 0.982 and recall (1) is 0.730 (ROC-AUC 0.946, average precision 0.902). Precision exceeds recall because F1 peaks at that point on the precision-recall curve: lowering the threshold to raise recall reduces precision faster than it gains recall, which lowers F1.
+
+*<font color="gree"> Comparison to DT: </font>* XGBoost beats the DT baseline on 8 of 9 metrics. Recalls on the default class are tied. The gains are largest where ranking quality and positive-class reliability matter most. Precision (1) rises from 0.829 to 0.982 (+15.3pp), the largest gain in the table. When XGBoost flags a positive, it is right about 98.2% of the time, versus 82.9% for the DT. Balanced accuracy improves by +2.1pp, the smallest of the gains. Most of the improvement therefore comes from fewer false positives, not from catching more positives.
+
+*<font color="gree"> Comparison to Logit: </font>* XGBClassifier obviously is better than Logit, with positive gain in all metrics.  
+
+**Limitations.** At this operating point the model misses about a quarter of positive cases (about 383 false negatives versus about 19 false positives on 6,515 test samples). If the real cost of a missed positive exceeds that of a false alarm, $F_{\beta}$ ($\beta>1$) is a good replacement for F1. 
+
 
 
 [Back to the page start](#start)
