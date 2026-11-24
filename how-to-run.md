@@ -109,7 +109,23 @@ A browser tab opens. Open the `.ipynb` file you want and select the **Python (pr
 2. Run `analysis.ipynb` first. This produces the processed datasets from the raw dataset.
 3. Others notebooks can be runned after that in any order. It is recommended to run `baseline.ipynb` first to have a baseline.   
 
-## 6. Deactivate and clean up
+## 6. Run the Python scripts
+
+From the project root, run the analysis script first to create the processed dataset:
+
+```powershell
+python scripts\analysis.py
+```
+
+Then run the modelling script. It runs the baseline, logistic regression, and XGBoost classes:
+
+```powershell
+python scripts\modelling.py
+```
+
+The modelling script runs 120 Optuna trials for each tuned model by default and opens the generated plots.
+
+## 7. Deactivate and clean up
  
 When you are done, deactivate the virtual env using:
  
